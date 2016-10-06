@@ -13,22 +13,10 @@ CELL_SIZE = 28;
 var ownFleet, rivalFleet;
 var gameState;
 var socket = io();
+
 document.addEventListener("DOMContentLoaded", startApp);
 
-//DOM elements, sript works with
-function Gui() {
-    this.ownField = document.getElementById('own-field');
-    this.rivalField = document.getElementById('rival-field');
-    this.ownInfo = document.getElementById('own-data').getElementsByTagName('span')[0];
-    this.rivalInfo = document.getElementById('rival-data').getElementsByTagName('span')[0];
-    this.shipyard = document.getElementById('shipyard');
-    this.inputName = document.getElementsByTagName('input')[0];
-    this.ownName = document.getElementById('own-data').getElementsByTagName('h2')[0];
-    this.rivalName = document.getElementById('rival-data').getElementsByTagName('h2')[0];
-    [this.colOwn, this.colShipyard, this.colRival, this.colWait] =
-        document.getElementsByClassName('container');
-}
-
+// constructor of the object, which contain all the data of one side of the war conflict )
 function GamerData(tableElement) {
     var self = this;
 
@@ -135,44 +123,6 @@ function GamerData(tableElement) {
     self.shipNumber = getMatrix();
 }
 
-function createTable(fleet) {
-    for (var i=0; i<10; i++) {
-        var tr = document.createElement('tr');
-        var th = document.createElement('th');
-        th.appendChild(document.createTextNode((i+1).toString()));
-        tr.appendChild(th);
-        fleet.table.appendChild(tr);
-        for (var j=0; j<10; j++) {
-            var td = document.createElement('td');
-            td.style.background = `url(${IMG_BLANK})`;
-            // td.style.backgroundSize = CELL_SIZE - 1 + 'px';
-            td.style.backgroundRepeat = "no-repeat";
-            tr.appendChild(td);
-            td.x = j;
-            td.y = i;
-            fleet.cellElements[j][i] = td;
-        }
-    }
-}
-
-function createShips() {
-    var shipyard = gui.shipyard;
-    for (var size=4; size>0; size--) {
-        for (var n=5-size; n>0; n--) {
-            var ship = document.createElement('div');
-            ship.style.height = CELL_SIZE - 3 + 'px';
-            ship.style.width = CELL_SIZE*size - 3  + 'px';
-            ship.classList.add('ship');
-            ship.dx = [0,1,2,3].slice(0, size);
-            ship.dy = [0,0,0,0].slice(0, size);
-            ship.disposed = false;
-            ship.classList.add('draggable');
-            shipyard.appendChild(ship);
-            ownFleet.shipElements.push(ship);
-        }
-    }
-}
-
 function showMessage(text, type='inform') {
     alert(text);
 }
@@ -192,8 +142,60 @@ function startApp() {
     gui.colRival.hidden = true;
     gui.colWait.hidden = true;
 
+    //DOM elements, sript works with
+    function Gui() {
+        this.ownField = document.getElementById('own-field');
+        this.rivalField = document.getElementById('rival-field');
+        this.ownInfo = document.getElementById('own-data').getElementsByTagName('span')[0];
+        this.rivalInfo = document.getElementById('rival-data').getElementsByTagName('span')[0];
+        this.shipyard = document.getElementById('shipyard');
+        this.inputName = document.getElementsByTagName('input')[0];
+        this.ownName = document.getElementById('own-data').getElementsByTagName('h2')[0];
+        this.rivalName = document.getElementById('rival-data').getElementsByTagName('h2')[0];
+        [this.colOwn, this.colShipyard, this.colRival, this.colWait] =
+            document.getElementsByClassName('container');
+    }
+
+    function createShips() {
+        var shipyard = gui.shipyard;
+        for (var size=4; size>0; size--) {
+            for (var n=5-size; n>0; n--) {
+                var ship = document.createElement('div');
+                ship.style.height = CELL_SIZE - 3 + 'px';
+                ship.style.width = CELL_SIZE*size - 3  + 'px';
+                ship.classList.add('ship');
+                ship.dx = [0,1,2,3].slice(0, size);
+                ship.dy = [0,0,0,0].slice(0, size);
+                ship.disposed = false;
+                ship.classList.add('draggable');
+                shipyard.appendChild(ship);
+                ownFleet.shipElements.push(ship);
+            }
+        }
+    }
+
+    function createTable(fleet) {
+        for (var i=0; i<10; i++) {
+            var tr = document.createElement('tr');
+            var th = document.createElement('th');
+            th.appendChild(document.createTextNode((i+1).toString()));
+            tr.appendChild(th);
+            fleet.table.appendChild(tr);
+            for (var j=0; j<10; j++) {
+                var td = document.createElement('td');
+                td.style.background = `url(${IMG_BLANK})`;
+                // td.style.backgroundSize = CELL_SIZE - 1 + 'px';
+                td.style.backgroundRepeat = "no-repeat";
+                tr.appendChild(td);
+                td.x = j;
+                td.y = i;
+                fleet.cellElements[j][i] = td;
+            }
+        }
+    }
 }
 
+// clear the data after the game finished
 function clearOldData() {
     var ships = Array.from(document.getElementsByClassName('ship'));
     for (ship of ships) {
@@ -210,32 +212,34 @@ function clearOldData() {
     gui.ownInfo.innerHTML = '10/20';
 }
 
-function fire(ev) {
-    if (gameState != CANMOVE) { return; }
-    var rivalBoard = rivalFleet.table;
-    var target = ev.target;
-    while ( target.tagName != 'TD' ) {
-        if (target == rivalBoard) { return; }
-        target = target.parentNode;
-    }
-    var cellState = rivalFleet.cellState[target.x][target.y];
-    if (cellState==DOT || cellState==CROSS) {
-        showMessage('Firing on the used targets is a bad idea.');
-        return;
-    }
-    socket.emit('move', [target.x, target.y]);
-    rivalFleet.fire(target.x,target.y);
-}
-
+// begin firing on the one another ships
 function startGame() {
     gui.colWait.hidden = true;
     gui.colRival.hidden = false;
     gui.rivalName.innerHTML = rivalFleet.gamerName;
     rivalFleet.fillCellStates();
     gui.rivalField.onclick = fire;
+
+    function fire(ev) {
+        if (gameState != CANMOVE) { return; }
+        var rivalBoard = rivalFleet.table;
+        var target = ev.target;
+        while ( target.tagName != 'TD' ) {
+            if (target == rivalBoard) { return; }
+            target = target.parentNode;
+        }
+        var cellState = rivalFleet.cellState[target.x][target.y];
+        if (cellState==DOT || cellState==CROSS) {
+            showMessage('Firing on the used targets is a bad idea.');
+            return;
+        }
+        socket.emit('move', [target.x, target.y]);
+        rivalFleet.fire(target.x,target.y);
+    }
 }
 
-function connect2server() {
+// finish ships placement and send data to the server
+function registeronserver() {
     var gamerName = gui.inputName.value;
     if (!gamerName) {
         showMessage('Enter your name, please.');
@@ -270,6 +274,7 @@ function gameOver(isWin) {
     startApp();
 }
 
+// visualise the move turn
 function setGameState(state) {
     if (gameState == state) { return; }
     gameState = state;
