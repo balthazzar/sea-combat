@@ -1,0 +1,61 @@
+table {
+    border: 3px solid #7d7dc8;
+    border-collapse: collapse;
+}
+th, td {
+    width: 27px;
+    height: 27px;
+    border: solid 1px #7d7dc8;
+    padding: 0;
+}
+th {
+    border-right-width: 3px;
+}
+.table-header th {
+    border-right-width: 1px;
+    border-bottom-width: 3px;
+}
+
+div.ship {
+    border: solid black 3px;
+    cursor: move;
+    background: rgba(76, 175, 80, 0.2)
+}
+
+#shipyard {
+    border-radius: 6px;
+    width: 250px;
+    min-height: 250px;
+    border: solid 1px #7d7dc8;;
+    margin-top: 15px;
+    padding: 13px;
+}
+#shipyard div {
+    margin: 3px;
+    float: left;
+}
+.container {
+    margin: 8px;
+    float: left;
+}
+.some-data {
+    margin-top: 10px;
+    padding: 10px;
+    border: solid 1px #7d7dc8;
+    border-radius: 6px;
+    width: 292px;
+    min-height: 150px;
+    font-size: 1.3rem;
+}
+.some-data span {
+    font-weight: bold;
+}
+h2 {
+    margin-top: 5px;
+}
+.container > p {
+    width: 200px;
+}
+.faded-out {
+    background-color: lightgray;
+}

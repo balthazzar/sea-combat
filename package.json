@@ -1,0 +1,8 @@
+{
+  "name": "sea-combat-battle",
+  "version": "0.0.1",
+  "description": "Sea battle is my first socket.io app",
+  "dependencies": {
+    "socket.io": "^1.4.8"
+  }
+}
