@@ -12,12 +12,11 @@ var freesocket;
 
 app.use('/files', express.static('files'));
 app.use('/graph', express.static('graph'));
+app.use('/sound', express.static('sound'));
 
-app.get('/', function(req, res){
-    res.sendFile(__dirname + '/files/index.html');
-});
+app.get('/', (req, res) => { res.sendFile(__dirname + '/files/index.html'); });
 
-io.on('connection', function(socket){
+io.on('connection', (socket) => {
     // New user connected. Do nothing.
     socket.on('disconnect', () => {
         if (socket.playmate) {
@@ -47,6 +46,4 @@ io.on('connection', function(socket){
     });
 });
 
-http.listen(3000, function(){
-    console.log('listening on *:3000');
-});
+http.listen(3000, () => { console.log('listening on *:3000'); });
