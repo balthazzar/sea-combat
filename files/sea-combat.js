@@ -141,25 +141,28 @@ const seaBattleApplication = () => {
         self.shipNumber = getMatrix();
     }
 
+    // In the rial application the message will be more complex than "alert"
     const showMessage = (text) => {
         alert(text);
     };
 
     const startApp = () => {
         //DOM elements, sript works with
-        function Gui () {
-            this.ownField = document.getElementById('own-field');
-            this.rivalField = document.getElementById('rival-field');
-            this.ownInfo = document.getElementById('own-data').getElementsByTagName('span')[0];
-            this.rivalInfo = document.getElementById('rival-data').getElementsByTagName('span')[0];
-            this.shipyard = document.getElementById('shipyard');
-            this.inputName = document.getElementsByTagName('input')[0];
-            this.ownName = document.getElementById('own-data').getElementsByTagName('h2')[0];
-            this.rivalName = document.getElementById('rival-data').getElementsByTagName('h2')[0];
-            let [a, b, c, d] = document.getElementsByClassName('container');
-            this.colShipyard = b;
-            this.colRival = c;
-            this.colWait = d;
+        class Gui {
+            constructor () {
+                this.ownField = document.getElementById('own-field');
+                this.rivalField = document.getElementById('rival-field');
+                this.ownInfo = document.getElementById('own-data').getElementsByTagName('span')[0];
+                this.rivalInfo = document.getElementById('rival-data').getElementsByTagName('span')[0];
+                this.shipyard = document.getElementById('shipyard');
+                this.inputName = document.getElementsByTagName('input')[0];
+                this.ownName = document.getElementById('own-data').getElementsByTagName('h2')[0];
+                this.rivalName = document.getElementById('rival-data').getElementsByTagName('h2')[0];
+                let [a, b, c, d] = document.getElementsByClassName('container');
+                this.colShipyard = b;
+                this.colRival = c;
+                this.colWait = d;
+            }
         }
 
         const createShips = () => {
@@ -235,7 +238,7 @@ const seaBattleApplication = () => {
     // begin firing on the one another ships
     const startGame = () => {
 
-        function fire(ev) {
+        const fire = ev => {
             if (gameState != CANMOVE) { return; }
             var rivalBoard = rivalFleet.table;
             var target = ev.target;
@@ -250,7 +253,7 @@ const seaBattleApplication = () => {
             }
             socket.emit('move', [target.x, target.y]);
             rivalFleet.fire(target.x,target.y);
-        }
+        };
         gui.colWait.hidden = true;
         gui.colRival.hidden = false;
         gui.rivalName.innerHTML = rivalFleet.gamerName;
