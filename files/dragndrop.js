@@ -108,8 +108,8 @@ function shipShuffle(e) {
             var deskx = x + ship.dx[desk];
             var desky = y + ship.dy[desk];
             for (var i=0; i<9; i++){
-                resx = deskx + DX[i];
-                resy = desky + DY[i];
+                let resx = deskx + DX[i];
+                let resy = desky + DY[i];
                 if (0<=resx && resx<10 && 0<=resy && resy<10) {
                     yield [resx, resy];
                 }
@@ -126,6 +126,7 @@ function shipShuffle(e) {
             var [i,j] = coord;
             ownFleet.sea[i][j] += 1;
         }
+        SND.PLACED.play();
     }
 
     function dockShip() {
