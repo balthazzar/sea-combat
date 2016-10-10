@@ -2,7 +2,6 @@
  * Created by Volodymyr Lomako on 01.10.2016.
 */
 
-
 //These constant and variables are used not only here but also in the 'dragndrop' module.
 //So they are in the global scope
 const CELL_SIZE = 28;
@@ -45,44 +44,20 @@ const seaBattleApplication = () => {
     var gameState;
     var socket = io();
 
+    // An empty matrix 10x10 builder
+    const getMatrix = () => new Array(10).fill(0).map(x => new Array(10).fill(0));
+    
     // constructor of the object, which contain all the data of one side of the war conflict )
-    function GamerData(tableElement) {
-        var self = this;
-
-        // An empty matrix 10x10 builder
-        const getMatrix = () => new Array(10).fill(0).map(x => new Array(10).fill(0));
-
-        // fill the self.ships with ships' coordinates
-        self.fillShipsTable = () => {
-            for (var shipEl of self.shipElements) {
-                var ship = {x:[], y:[]};
-                for (var i=0; i<shipEl.dx.length; i++){
-                    ship.x.push(shipEl.x0 + shipEl.dx[i]);
-                    ship.y.push(shipEl.y0 + shipEl.dy[i]);
-                }
-                self.ships.push(ship);
-            }
-            self.fillCellStates();
-        };
-
-        self.fillCellStates = () => {
-            for (var n=0; n<self.ships.length; n++) {
-                var {x, y} = self.ships[n];
-                for (var i=0; i<x.length; i++) {
-                    self.cellState[x[i]][y[i]] = SHIP;
-                    self.shipNumber[x[i]][y[i]] = n;
-                }
-            }
-        };
+    class GamerData {
 
         //Draw the ship rectangle when all of its desks are fired
-        const drawTheShip = (xx, yy) => {
-            var ship = self.ships[self.shipNumber[xx][yy]];
+        _drawTheShip(xx, yy) {
+            var ship = this.ships[this.shipNumber[xx][yy]];
             var left = ship.x[0];
             var top = ship.y[0];
             var right = ship.x[ship.x.length-1] + 1;
             var bottom = ship.y[ship.y.length-1] + 1;
-            var box = tableElement.getBoundingClientRect();
+            var box = this.table.getBoundingClientRect();
             var div = document.createElement('div');
             div.style.position = 'absolute';
             div.style.height = CELL_SIZE * (bottom-top) - 3 + 'px';
@@ -91,68 +66,94 @@ const seaBattleApplication = () => {
             div.style.top  = (top+1)*CELL_SIZE + pageYOffset + box.top + 3 + 'px';
             div.classList.add('ship');
             document.body.appendChild(div);
-        };
+        }
 
         //All the cells of the ship were targeted
-        const isKilled = (xx, yy) => {
-            var ship = self.ships[self.shipNumber[xx][yy]];
+        _isKilled(xx, yy) {
+            var ship = this.ships[this.shipNumber[xx][yy]];
             var {x, y} = ship;
             for (var i=0; i<x.length; i++) {
-                if (self.cellState[x[i]][y[i]] != CROSS ) { return false; }
+                if (this.cellState[x[i]][y[i]] != CROSS ) { return false; }
             }
             return true;
-        };
+        }
 
-        const putDotsAroundShip = (xx, yy) => {
-            var ship = self.ships[self.shipNumber[xx][yy]];
+        _putDotsAroundShip (xx, yy) {
+            var ship = this.ships[this.shipNumber[xx][yy]];
             var {x, y} = ship;
             for (var i = 0; i < x.length; i++) {
                 for (var j=0; j<8; j++) {
                     var xxx = x[i]+DX[j];
                     var yyy = y[i]+DY[j];
                     if (0>xxx || xxx>9 || 0>yyy || yyy>9) { continue; }
-                    if (self.cellState[xxx][yyy]==EMPTY){
-                        self.cellState[xxx][yyy] = DOT;
-                        self.cellElements[xxx][yyy].style.background = `url(${IMG_DOT})`;
+                    if (this.cellState[xxx][yyy]==EMPTY){
+                        this.cellState[xxx][yyy] = DOT;
+                        this.cellElements[xxx][yyy].style.background = `url(${IMG_DOT})`;
                     }
                 }
             }
-        };
+        }
+        // fill the this.ships with ships' coordinates
+        fillShipsTable() {
+            for (var shipEl of this.shipElements) {
+                var ship = {x:[], y:[]};
+                for (var i=0; i<shipEl.dx.length; i++){
+                    ship.x.push(shipEl.x0 + shipEl.dx[i]);
+                    ship.y.push(shipEl.y0 + shipEl.dy[i]);
+                }
+                this.ships.push(ship);
+            }
+            this.fillCellStates();
+        }
 
-        self.fire = (x, y) => {
-            if (self.cellState[x][y] == EMPTY) {
-                self.cellState[x][y] = DOT;
-                self.cellElements[x][y].style.background = `url(${IMG_DOT})`;
-                setGameState(isEnemy ? IDLE : CANMOVE);
+        fillCellStates() {
+            for (var n=0; n<this.ships.length; n++) {
+                var {x, y} = this.ships[n];
+                for (var i=0; i<x.length; i++) {
+                    this.cellState[x[i]][y[i]] = SHIP;
+                    this.shipNumber[x[i]][y[i]] = n;
+                }
+            }
+        }
+
+        fire(x, y) {
+            if (this.cellState[x][y] == EMPTY) {
+                this.cellState[x][y] = DOT;
+                this.cellElements[x][y].style.background = `url(${IMG_DOT})`;
+                setGameState(this.isEnemy ? IDLE : CANMOVE);
                 playSound.missed();
                 return;
             }
             // cell state here can be "SHIP" only
-            setGameState(isEnemy ? CANMOVE : IDLE);
-            desksLeft--;
-            self.cellState[x][y] = CROSS;
-            self.cellElements[x][y].style.background = `url(${IMG_CROSS})`;
+            setGameState(this.isEnemy ? CANMOVE : IDLE);
+            this.desksLeft--;
+            this.cellState[x][y] = CROSS;
+            this.cellElements[x][y].style.background = `url(${IMG_CROSS})`;
             playSound.strike();
-            if (isKilled(x, y)){
-                shipsLeft--;
-                putDotsAroundShip(x, y);
+            if (this._isKilled(x, y)){
+                this.shipsLeft--;
+                this._putDotsAroundShip(x, y);
                 playSound.sank();
-                if (isEnemy) {drawTheShip(x, y);}
+                if (this.isEnemy) {this._drawTheShip(x, y);}
             }
-            self.infoElement.innerHTML = shipsLeft+'/'+desksLeft;
-            if (!desksLeft) { gameOver(isEnemy); }
-        };
+            this.infoElement.innerHTML = this.shipsLeft+'/'+this.desksLeft;
+            if (!this.desksLeft) { gameOver(this.isEnemy); }
+        }
 
-        var isEnemy = (tableElement === gui.rivalField);
-        var shipsLeft = 10;
-        var desksLeft = 20;
-        self.ships = [];
-        self.table = tableElement;
-        self.sea = getMatrix(); // used when drag & drop
-        self.shipElements = []; // list of the own ships in the form of HTML DIVs
-        self.cellElements = getMatrix();
-        self.cellState = getMatrix();
-        self.shipNumber = getMatrix();
+        constructor (tableElement) {
+            var self = this;
+            this.isEnemy = (tableElement === gui.rivalField);
+            this.shipsLeft = 10;
+            this.desksLeft = 20;
+            this.ships = [];
+            this.table = tableElement;
+            this.sea = getMatrix(); // used when drag & drop
+            this.shipElements = []; // list of the own ships in the form of HTML DIVs
+            this.cellElements = getMatrix();
+            this.cellState = getMatrix();
+            this.shipNumber = getMatrix();
+        }
+
     }
 
     // In the rial application the message will be more complex than "alert"
@@ -163,15 +164,15 @@ const seaBattleApplication = () => {
     const startApp = () => {
         //DOM elements, sript works with
         gui = {
-            mute: document.getElementById('mute').firstElementChild,
+            mute: document.querySelector('#mute input'),
             ownField: document.getElementById('own-field'),
             rivalField: document.getElementById('rival-field'),
-            ownInfo: document.getElementById('own-data').getElementsByTagName('span')[0],
-            rivalInfo: document.getElementById('rival-data').getElementsByTagName('span')[0],
+            ownInfo: document.querySelector('#own-data span'),
+            rivalInfo: document.querySelector('#rival-data span'),
             shipyard: document.getElementById('shipyard'),
-            inputName: document.getElementsByTagName('input')[0],
-            ownName: document.getElementById('own-data').getElementsByTagName('h2')[0],
-            rivalName: document.getElementById('rival-data').getElementsByTagName('h2')[0],
+            inputName: document.querySelector('.container input'),
+            ownName: document.querySelector('#own-data h2'),
+            rivalName: document.querySelector('#rival-data h2'),
             colShipyard: document.getElementsByClassName('container')[1],
             colRival: document.getElementsByClassName('container')[2],
             colWait: document.getElementsByClassName('container')[3]         
@@ -216,7 +217,6 @@ const seaBattleApplication = () => {
 
         const mute = () => {
             playSound.mute = gui.mute.checked;
-            console.log(playSound.mute);
         };
 
         gameState = NOTREADY;
@@ -229,6 +229,7 @@ const seaBattleApplication = () => {
         createShips();
         document.onmousedown = shipShuffle;
         gui.mute.onclick = mute;
+        mute();
         gui.colShipyard.hidden = false;
         gui.colRival.hidden = true;
         gui.colWait.hidden = true;
@@ -238,7 +239,6 @@ const seaBattleApplication = () => {
     const clearOldData = () => {
         var ships = Array.from(document.getElementsByClassName('ship'));
         for (let ship of ships) {
-            console.log('removed');
             document.body.removeChild(ship);
         }
         var trs = Array.from(document.getElementsByTagName('tr'));
@@ -343,11 +343,6 @@ const seaBattleApplication = () => {
         startGame();
     });
 
-    socket.on('move', (coordinates) => {
-       [x, y] = coordinates;
-        ownFleet.fire(x, y);
-    });
-
     socket.on('move', coordinates => {
        [x, y] = coordinates;
         ownFleet.fire(x, y);
@@ -357,7 +352,7 @@ const seaBattleApplication = () => {
         if (gameState!=IDLE && gameState!=CANMOVE) { return; } //It is some error.
         gui.ownField.classList.remove('faded-out');
         gui.rivalField.classList.remove('faded-out');
-        showMessage(`Your rival ${rivalFleet.gamerName} fleed (disconnected). You win.`)
+        showMessage(`Your rival ${rivalFleet.gamerName} fleed (disconnected). You win.`);
         clearOldData();
         startApp();
     });

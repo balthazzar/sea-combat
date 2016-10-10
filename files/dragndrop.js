@@ -138,4 +138,4 @@ function shipShuffle(e) {
         }
     }
     return false;
-};
+}
