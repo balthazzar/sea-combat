@@ -17,7 +17,7 @@ app.get('/', function(req, res){
     res.sendFile(__dirname + '/files/index.html');
 });
 
-io.on('connection', function(socket){
+io.on('connection', socket => {
     // New user connected. Do nothing.
     socket.on('disconnect', () => {
         if (socket.playmate) {
@@ -25,7 +25,7 @@ io.on('connection', function(socket){
             delete socket.playmate.playmate;
         }
     });
-    socket.on('register', (gamerdata) => {
+    socket.on('register', gamerdata => {
         if (freesocket) {
             freesocket.playmate = socket;
             socket.playmate = freesocket;
@@ -38,7 +38,7 @@ io.on('connection', function(socket){
             freesocket = socket;
         }
     });
-    socket.on('move', (coordinates) => {
+    socket.on('move', coordinates => {
         socket.playmate.emit('move', coordinates);
     });
     socket.on('game over', () => {

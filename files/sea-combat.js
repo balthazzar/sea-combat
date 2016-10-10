@@ -288,7 +288,7 @@ function setGameState(state) {
     }
 }
 
-socket.on('register', (userdata) => {
+socket.on('register', userdata => {
     if (gameState!=WAITING) { return; } //Some error happend
     setGameState( userdata.firstmove ? CANMOVE : IDLE );
     rivalFleet.ships = userdata.ships;
@@ -296,7 +296,7 @@ socket.on('register', (userdata) => {
     startGame();
 });
 
-socket.on('move', (coordinates) => {
+socket.on('move', coordinates => {
    [x, y] = coordinates;
     ownFleet.fire(x, y);
 });
