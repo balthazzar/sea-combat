@@ -54,15 +54,15 @@ const seaBattleApplication = () => {
             let ship = this.ships[this.shipNumber[xx][yy]];
             let left = ship.x[0];
             let top = ship.y[0];
-            let right = ship.x[ship.x.length-1] + 1;
-            let bottom = ship.y[ship.y.length-1] + 1;
+            let right = ship.x[ship.x.length - 1] + 1;
+            let bottom = ship.y[ship.y.length - 1] + 1;
             let box = this.table.getBoundingClientRect();
             let div = document.createElement('div');
             div.style.position = 'absolute';
-            div.style.height = CELL_SIZE * (bottom-top) - 3 + 'px';
-            div.style.width =  CELL_SIZE * (right-left) - 3  + 'px';
-            div.style.left = (left+1)*CELL_SIZE + pageXOffset + box.left + 3 + 'px';
-            div.style.top  = (top+1)*CELL_SIZE + pageYOffset + box.top + 3 + 'px';
+            div.style.height = CELL_SIZE * (bottom - top) - 3 + 'px';
+            div.style.width = CELL_SIZE * (right - left) - 3 + 'px';
+            div.style.left = (left + 1) * CELL_SIZE + pageXOffset + box.left + 3 + 'px';
+            div.style.top = (top + 1) * CELL_SIZE + pageYOffset + box.top + 3 + 'px';
             div.classList.add('ship');
             document.body.appendChild(div);
         }
@@ -71,27 +71,48 @@ const seaBattleApplication = () => {
         _isKilled(xx, yy) {
             let ship = this.ships[this.shipNumber[xx][yy]];
             let {x, y} = ship;
-            for (let i=0; i<x.length; i++) {
-                if (this.cellState[x[i]][y[i]] != CROSS ) { return false; }
+            for (let i = 0; i < x.length; i++) {
+                if (this.cellState[x[i]][y[i]] != CROSS) {
+                    return false;
+                }
             }
             return true;
         }
 
-        _putDotsAroundShip (xx, yy) {
+        _putDotsAroundShip(xx, yy) {
             let ship = this.ships[this.shipNumber[xx][yy]];
             let {x, y} = ship;
             for (let i = 0; i < x.length; i++) {
-                for (let j=0; j<8; j++) {
-                    let xxx = x[i]+DX[j];
-                    let yyy = y[i]+DY[j];
-                    if (0>xxx || xxx>9 || 0>yyy || yyy>9) { continue; }
-                    if (this.cellState[xxx][yyy]==EMPTY){
+                for (let j = 0; j < 8; j++) {
+                    let xxx = x[i] + DX[j];
+                    let yyy = y[i] + DY[j];
+                    if (0 > xxx || xxx > 9 || 0 > yyy || yyy > 9) {
+                        continue;
+                    }
+                    if (this.cellState[xxx][yyy] == EMPTY) {
                         this.cellState[xxx][yyy] = DOT;
                         this.cellElements[xxx][yyy].style.background = `url(${IMG_DOT})`;
                     }
                 }
             }
         }
+
+        touchSea(ship, lambda = 1) {
+            let x = ship.x0;
+            let y = ship.y0;
+            for (var desk = 0; desk < ship.dx.length; desk++) {
+                var deskx = x + ship.dx[desk];
+                var desky = y + ship.dy[desk];
+                for (var i = 0; i < 9; i++) {
+                    let resx = deskx + DX[i];
+                    let resy = desky + DY[i];
+                    if (0 <= resx && resx < 10 && 0 <= resy && resy < 10) {
+                        this.sea[resx][resy] += lambda;
+                    }
+                }
+            }
+        }
+
         // fill the this.ships with ships' coordinates
         fillShipsTable() {
             for (let shipEl of this.shipElements) {

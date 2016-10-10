@@ -44,7 +44,9 @@ const shipAutoPlace = fleet => {
 
     for (let ship of ships) {
         let startX, startY, x0, y0;
-        if (!ship.disposed) {
+        if (ship.disposed) {
+            ownFleet.touchSea(ship, -1);
+        } else {
             document.body.appendChild(ship);
             ship.disposed = true;
         }
@@ -59,6 +61,7 @@ const shipAutoPlace = fleet => {
             y0 = Math.floor(Math.random() * (10-shipHeight));
         } while (!checkPlace(ship, x0, y0));
         placeShip(ship, x0, y0);
+        ownFleet.touchSea(ship);
     }
 
 };

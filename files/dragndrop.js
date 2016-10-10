@@ -102,40 +102,19 @@ function shipShuffle(e) {
         [ship.dx, ship.dy] = [ship.dy, ship.dx];
     }
 
-    // Generator which returns all the cells arounds ship and on it
-    function* coordinates(x, y) {
-        for (var desk=0; desk<ship.dx.length; desk++) {
-            var deskx = x + ship.dx[desk];
-            var desky = y + ship.dy[desk];
-            for (var i=0; i<9; i++){
-                let resx = deskx + DX[i];
-                let resy = desky + DY[i];
-                if (0<=resx && resx<10 && 0<=resy && resy<10) {
-                    yield [resx, resy];
-                }
-            }
-        }
-    }
-
     function disposeShip(x, y) {
         if (ship.disposed) { return; }
-        ship.disposed = true;
         ship.x0 = x;
         ship.y0 = y;
-        for(var coord of coordinates(x, y)) {
-            var [i,j] = coord;
-            ownFleet.sea[i][j]++;
-        }
+        ship.disposed = true;
+        ownFleet.touchSea(ship);
         playSound.placed();
     }
 
     function dockShip() {
         if (!ship.disposed) { return; }
         ship.disposed = false;
-        for(var coord of coordinates(ship.x0, ship.y0)) {
-            var [i,j] = coord;
-            ownFleet.sea[i][j]--;
-        }
+        ownFleet.touchSea(ship, -1);
     }
     return false;
 }
