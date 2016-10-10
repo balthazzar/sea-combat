@@ -63,7 +63,7 @@ const shipAutoPlace = fleet => {
         placeShip(ship, x0, y0);
         ownFleet.touchSea(ship);
     }
-
+    playSound .placed();
 };
 
 

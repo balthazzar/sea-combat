@@ -17,14 +17,15 @@ class Snd {
         this.CANTPLACE = new Audio("/sound/placement_error.mp3");
         this.SANK = new Audio("/sound/sinking.mp3");
     }
-    strike() {
+    play(sound) {
         if (!this.mute) {
-            this.STRIKE.currentTime = 0;
-            this.STRIKE.play();
+            sound.currentTime = 0;
+            sound.play();
         }
     }
+    strike() { this.play(this.STRIKE); }
     missed() { if (!this.mute) { this.MISSED.play(); } }
-    placed() { if (!this.mute) { this.PLACED.play(); } }
+    placed() { this.play(this.PLACED); }
     cantplace() { if (!this.mute) { this.CANTPLACE.play(); } }
     sank() { if (!this.mute) { this.SANK.play(); } }
 }

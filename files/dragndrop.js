@@ -97,18 +97,45 @@ function shipShuffle(e) {
         ship.style.top = newY + 'px';
     }
 
-    function shipRotate(){
+    function shipRotate() {
         [ship.style.width, ship.style.height] = [ship.style.height, ship.style.width];
         [ship.dx, ship.dy] = [ship.dy, ship.dx];
     }
 
+    //Try to rotate the placed on the board ship
+    function placedShipRotate() {
+        var dx = ship.dx[ship.dx.length-1];
+        var dy = ship.dx[ship.dy.length-1];
+        var shipLen = Math.max(dx, dy);
+        var x0 = ship.x0 - shipLen + dx;
+        var y0 = ship.y0 - shipLen + dy;
+        shipRotate();
+        for (let x=x0; x<=x0+shipLen; x++) {
+            for (let y=y0; y<=y0+shipLen; y++) {
+                if (checkShipPosition(x, y)) {
+                    ship.x0 = x;
+                    ship.y0 = y;
+                    playSound.placed()
+                    return;
+                }
+
+            }
+        }
+        shipRotate();
+        playSound.cantplace()
+    }
+
     function disposeShip(x, y) {
         if (ship.disposed) { return; }
+        var inOldPlace = ship.x0 == x && ship.y0 == y;
         ship.x0 = x;
         ship.y0 = y;
+        if (Date.now()-starttime < 333 && inOldPlace && ship.dx.length>1) {
+            placedShipRotate();
+        }
         ship.disposed = true;
         ownFleet.touchSea(ship);
-        playSound.placed();
+        if (!inOldPlace) { playSound.placed() };
     }
 
     function dockShip() {
