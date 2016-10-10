@@ -8,13 +8,36 @@
 const CELL_SIZE = 28;
 const DX = [-1, 0, 1,-1, 1,-1, 0, 1, 0];
 const DY = [-1,-1,-1, 0, 0, 1, 1, 1, 0];
-const SND = {
-    STRIKE: new Audio("/sound/explosion.mp3"),
-    MISSED: new Audio("/sound/tuk.mp3"),
-    PLACED: new Audio("/sound/placed.mp3"),
-    CANTPLACE: new Audio("/sound/placement_error.mp3"),
-    SANK: new Audio("/sound/sinking.mp3")
-};
+// const SND = {
+//     STRIKE: new Audio("/sound/explosion.mp3"),
+//     MISSED: new Audio("/sound/tuk.mp3"),
+//     PLACED: new Audio("/sound/placed.mp3"),
+//     CANTPLACE: new Audio("/sound/placement_error.mp3"),
+//     SANK: new Audio("/sound/sinking.mp3")
+// };
+
+class Snd {
+    constructor() {
+        this.mute = false;
+        this.STRIKE = new Audio("/sound/explosion.mp3");
+        this.MISSED = new Audio("/sound/tuk.mp3");
+        this.PLACED = new Audio("/sound/placed.mp3");
+        this.CANTPLACE = new Audio("/sound/placement_error.mp3");
+        this.SANK = new Audio("/sound/sinking.mp3");
+    }
+    strike() {
+        if (!this.mute) {
+            this.STRIKE.currentTime = 0;
+            this.STRIKE.play();
+        }
+    }
+    missed() { if (!this.mute) { this.MISSED.play(); } }
+    placed() { if (!this.mute) { this.PLACED.play(); } }
+    cantplace() { if (!this.mute) { this.CANTPLACE.play(); } }
+    sank() { if (!this.mute) { this.SANK.play(); } }
+}
+
+var playSound = new Snd;
 
 let gui;
 let ownFleet, rivalFleet;
@@ -108,7 +131,7 @@ const seaBattleApplication = () => {
                 self.cellState[x][y] = DOT;
                 self.cellElements[x][y].style.background = `url(${IMG_DOT})`;
                 setGameState(isEnemy ? IDLE : CANMOVE);
-                SND.MISSED.play();
+                playSound.missed();
                 return;
             }
             // cell state here can be "SHIP" only
@@ -116,13 +139,11 @@ const seaBattleApplication = () => {
             desksLeft--;
             self.cellState[x][y] = CROSS;
             self.cellElements[x][y].style.background = `url(${IMG_CROSS})`;
-            // SND.STRIKE.pause();
-            SND.STRIKE.currentTime = 0;
-            SND.STRIKE.play();
+            playSound.strike();
             if (isKilled(x, y)){
                 shipsLeft--;
                 putDotsAroundShip(x, y);
-                SND.SANK.play();
+                playSound.sank();
                 if (isEnemy) {drawTheShip(x, y);}
             }
             self.infoElement.innerHTML = shipsLeft+'/'+desksLeft;
@@ -350,6 +371,3 @@ socket.on('move', coordinates => {
 };
 
 document.addEventListener("DOMContentLoaded", seaBattleApplication);
-
-// var snd = new Audio("file.wav"); // buffers automatically when created
-// snd.play();

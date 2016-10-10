@@ -16,7 +16,6 @@ app.use('/sound', express.static('sound'));
 
 app.get('/', (req, res) => { res.sendFile(__dirname + '/files/index.html'); });
 
-io.on('connection', (socket) => {
 io.on('connection', socket => {
     // New user connected. Do nothing.
     socket.on('disconnect', () => {

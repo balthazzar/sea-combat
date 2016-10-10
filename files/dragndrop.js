@@ -126,7 +126,7 @@ function shipShuffle(e) {
             var [i,j] = coord;
             ownFleet.sea[i][j] += 1;
         }
-        SND.PLACED.play();
+        playSound.placed();
     }
 
     function dockShip() {
