@@ -124,7 +124,7 @@ function shipShuffle(e) {
         ship.y0 = y;
         for(var coord of coordinates(x, y)) {
             var [i,j] = coord;
-            ownFleet.sea[i][j] += 1;
+            ownFleet.sea[i][j]++;
         }
         playSound.placed();
     }
@@ -134,7 +134,7 @@ function shipShuffle(e) {
         ship.disposed = false;
         for(var coord of coordinates(ship.x0, ship.y0)) {
             var [i,j] = coord;
-            ownFleet.sea[i][j] -= 1;
+            ownFleet.sea[i][j]--;
         }
     }
     return false;

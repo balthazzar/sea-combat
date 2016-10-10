@@ -2,7 +2,7 @@
  * Created by Volodymyr Lomako on 01.10.2016.
 */
 
-//These constant and variables are used not only here but also in the 'dragndrop' module.
+//These constant are used not only here but also in the 'dragndrop' module.
 //So they are in the global scope
 const CELL_SIZE = 28;
 const DX = [-1, 0, 1,-1, 1,-1, 0, 1, 0];
@@ -29,8 +29,7 @@ class Snd {
     sank() { if (!this.mute) { this.SANK.play(); } }
 }
 
-var playSound = new Snd;
-
+let playSound = new Snd;
 let gui;
 let ownFleet, rivalFleet;
 
@@ -41,8 +40,8 @@ const seaBattleApplication = () => {
     const [EMPTY, SHIP, DOT, CROSS] = [0,1,2,3];
     const [NOTREADY, WAITING, IDLE, CANMOVE] = [0,1,2,3];
 
-    var gameState;
-    var socket = io();
+    let gameState;
+    let socket = io();
 
     // An empty matrix 10x10 builder
     const getMatrix = () => new Array(10).fill(0).map(x => new Array(10).fill(0));
@@ -52,13 +51,13 @@ const seaBattleApplication = () => {
 
         //Draw the ship rectangle when all of its desks are fired
         _drawTheShip(xx, yy) {
-            var ship = this.ships[this.shipNumber[xx][yy]];
-            var left = ship.x[0];
-            var top = ship.y[0];
-            var right = ship.x[ship.x.length-1] + 1;
-            var bottom = ship.y[ship.y.length-1] + 1;
-            var box = this.table.getBoundingClientRect();
-            var div = document.createElement('div');
+            let ship = this.ships[this.shipNumber[xx][yy]];
+            let left = ship.x[0];
+            let top = ship.y[0];
+            let right = ship.x[ship.x.length-1] + 1;
+            let bottom = ship.y[ship.y.length-1] + 1;
+            let box = this.table.getBoundingClientRect();
+            let div = document.createElement('div');
             div.style.position = 'absolute';
             div.style.height = CELL_SIZE * (bottom-top) - 3 + 'px';
             div.style.width =  CELL_SIZE * (right-left) - 3  + 'px';
@@ -70,21 +69,21 @@ const seaBattleApplication = () => {
 
         //All the cells of the ship were targeted
         _isKilled(xx, yy) {
-            var ship = this.ships[this.shipNumber[xx][yy]];
-            var {x, y} = ship;
-            for (var i=0; i<x.length; i++) {
+            let ship = this.ships[this.shipNumber[xx][yy]];
+            let {x, y} = ship;
+            for (let i=0; i<x.length; i++) {
                 if (this.cellState[x[i]][y[i]] != CROSS ) { return false; }
             }
             return true;
         }
 
         _putDotsAroundShip (xx, yy) {
-            var ship = this.ships[this.shipNumber[xx][yy]];
-            var {x, y} = ship;
-            for (var i = 0; i < x.length; i++) {
-                for (var j=0; j<8; j++) {
-                    var xxx = x[i]+DX[j];
-                    var yyy = y[i]+DY[j];
+            let ship = this.ships[this.shipNumber[xx][yy]];
+            let {x, y} = ship;
+            for (let i = 0; i < x.length; i++) {
+                for (let j=0; j<8; j++) {
+                    let xxx = x[i]+DX[j];
+                    let yyy = y[i]+DY[j];
                     if (0>xxx || xxx>9 || 0>yyy || yyy>9) { continue; }
                     if (this.cellState[xxx][yyy]==EMPTY){
                         this.cellState[xxx][yyy] = DOT;
@@ -95,9 +94,9 @@ const seaBattleApplication = () => {
         }
         // fill the this.ships with ships' coordinates
         fillShipsTable() {
-            for (var shipEl of this.shipElements) {
-                var ship = {x:[], y:[]};
-                for (var i=0; i<shipEl.dx.length; i++){
+            for (let shipEl of this.shipElements) {
+                let ship = {x:[], y:[]};
+                for (let i=0; i<shipEl.dx.length; i++){
                     ship.x.push(shipEl.x0 + shipEl.dx[i]);
                     ship.y.push(shipEl.y0 + shipEl.dy[i]);
                 }
@@ -107,9 +106,9 @@ const seaBattleApplication = () => {
         }
 
         fillCellStates() {
-            for (var n=0; n<this.ships.length; n++) {
-                var {x, y} = this.ships[n];
-                for (var i=0; i<x.length; i++) {
+            for (let n=0; n<this.ships.length; n++) {
+                let {x, y} = this.ships[n];
+                for (let i=0; i<x.length; i++) {
                     this.cellState[x[i]][y[i]] = SHIP;
                     this.shipNumber[x[i]][y[i]] = n;
                 }
@@ -141,7 +140,7 @@ const seaBattleApplication = () => {
         }
 
         constructor (tableElement) {
-            var self = this;
+            let self = this;
             this.isEnemy = (tableElement === gui.rivalField);
             this.shipsLeft = 10;
             this.desksLeft = 20;
@@ -178,10 +177,10 @@ const seaBattleApplication = () => {
             colWait: document.getElementsByClassName('container')[3]         
         };
         const createShips = () => {
-            var shipyard = gui.shipyard;
-            for (var size=4; size>0; size--) {
-                for (var n=5-size; n>0; n--) {
-                    var ship = document.createElement('div');
+            let shipyard = gui.shipyard;
+            for (let size=4; size>0; size--) {
+                for (let n=5-size; n>0; n--) {
+                    let ship = document.createElement('div');
                     ship.style.height = CELL_SIZE - 3 + 'px';
                     ship.style.width = CELL_SIZE*size - 3  + 'px';
                     ship.classList.add('ship');
@@ -196,14 +195,14 @@ const seaBattleApplication = () => {
         };
 
         const createTable = fleet => {
-            for (var i=0; i<10; i++) {
-                var tr = document.createElement('tr');
-                var th = document.createElement('th');
+            for (let i=0; i<10; i++) {
+                let tr = document.createElement('tr');
+                let th = document.createElement('th');
                 th.appendChild(document.createTextNode((i+1).toString()));
                 tr.appendChild(th);
                 fleet.table.appendChild(tr);
-                for (var j=0; j<10; j++) {
-                    var td = document.createElement('td');
+                for (let j=0; j<10; j++) {
+                    let td = document.createElement('td');
                     td.style.background = `url(${IMG_BLANK})`;
                     // td.style.backgroundSize = CELL_SIZE - 1 + 'px';
                     td.style.backgroundRepeat = "no-repeat";
@@ -237,11 +236,11 @@ const seaBattleApplication = () => {
 
     // clear the data after the game finished
     const clearOldData = () => {
-        var ships = Array.from(document.getElementsByClassName('ship'));
+        let ships = Array.from(document.getElementsByClassName('ship'));
         for (let ship of ships) {
             document.body.removeChild(ship);
         }
-        var trs = Array.from(document.getElementsByTagName('tr'));
+        let trs = Array.from(document.getElementsByTagName('tr'));
         for (let tr of trs) {
             if (!tr.classList.contains('table-header')){
                 tr.parentNode.removeChild(tr);
@@ -256,13 +255,13 @@ const seaBattleApplication = () => {
 
         const fire = ev => {
             if (gameState != CANMOVE) { return; }
-            var rivalBoard = rivalFleet.table;
-            var target = ev.target;
+            let rivalBoard = rivalFleet.table;
+            let target = ev.target;
             while ( target.tagName != 'TD' ) {
                 if (target == rivalBoard) { return; }
                 target = target.parentNode;
             }
-            var cellState = rivalFleet.cellState[target.x][target.y];
+            let cellState = rivalFleet.cellState[target.x][target.y];
             if (cellState==DOT || cellState==CROSS) {
                 showMessage('Firing on the used targets is a bad idea.');
                 return;
@@ -279,12 +278,12 @@ const seaBattleApplication = () => {
 
     // finish ships placement and send data to the server
     const registerOnServer = () => {
-        var gamerName = gui.inputName.value;
+        let gamerName = gui.inputName.value;
         if (!gamerName) {
             showMessage('Enter your name, please.');
             return;
         }
-        for (var ship of ownFleet.shipElements) {
+        for (let ship of ownFleet.shipElements) {
             if (!ship.disposed) {
                 showMessage('Not all the ships are moved to the game board');
                 return;
@@ -358,6 +357,7 @@ const seaBattleApplication = () => {
     });
 
     document.getElementsByTagName('button')[0].onclick = registerOnServer;
+    document.getElementsByTagName('button')[1].onclick = () => { shipAutoPlace(ownFleet); };
 
     startApp();
 };
