@@ -59,3 +59,7 @@ h2 {
 .faded-out {
     background-color: lightgray;
 }
+#mute {
+    clear: both;
+    font-size: 1.2rem;
+}

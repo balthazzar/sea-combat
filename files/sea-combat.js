@@ -8,13 +8,6 @@
 const CELL_SIZE = 28;
 const DX = [-1, 0, 1,-1, 1,-1, 0, 1, 0];
 const DY = [-1,-1,-1, 0, 0, 1, 1, 1, 0];
-// const SND = {
-//     STRIKE: new Audio("/sound/explosion.mp3"),
-//     MISSED: new Audio("/sound/tuk.mp3"),
-//     PLACED: new Audio("/sound/placed.mp3"),
-//     CANTPLACE: new Audio("/sound/placement_error.mp3"),
-//     SANK: new Audio("/sound/sinking.mp3")
-// };
 
 class Snd {
     constructor() {
@@ -169,23 +162,20 @@ const seaBattleApplication = () => {
 
     const startApp = () => {
         //DOM elements, sript works with
-        class Gui {
-            constructor () {
-                this.ownField = document.getElementById('own-field');
-                this.rivalField = document.getElementById('rival-field');
-                this.ownInfo = document.getElementById('own-data').getElementsByTagName('span')[0];
-                this.rivalInfo = document.getElementById('rival-data').getElementsByTagName('span')[0];
-                this.shipyard = document.getElementById('shipyard');
-                this.inputName = document.getElementsByTagName('input')[0];
-                this.ownName = document.getElementById('own-data').getElementsByTagName('h2')[0];
-                this.rivalName = document.getElementById('rival-data').getElementsByTagName('h2')[0];
-                let [a, b, c, d] = document.getElementsByClassName('container');
-                this.colShipyard = b;
-                this.colRival = c;
-                this.colWait = d;
-            }
-        }
-
+        gui = {
+            mute: document.getElementById('mute').firstElementChild,
+            ownField: document.getElementById('own-field'),
+            rivalField: document.getElementById('rival-field'),
+            ownInfo: document.getElementById('own-data').getElementsByTagName('span')[0],
+            rivalInfo: document.getElementById('rival-data').getElementsByTagName('span')[0],
+            shipyard: document.getElementById('shipyard'),
+            inputName: document.getElementsByTagName('input')[0],
+            ownName: document.getElementById('own-data').getElementsByTagName('h2')[0],
+            rivalName: document.getElementById('rival-data').getElementsByTagName('h2')[0],
+            colShipyard: document.getElementsByClassName('container')[1],
+            colRival: document.getElementsByClassName('container')[2],
+            colWait: document.getElementsByClassName('container')[3]         
+        };
         const createShips = () => {
             var shipyard = gui.shipyard;
             for (var size=4; size>0; size--) {
@@ -204,7 +194,7 @@ const seaBattleApplication = () => {
             }
         };
 
-        const createTable = (fleet) => {
+        const createTable = fleet => {
             for (var i=0; i<10; i++) {
                 var tr = document.createElement('tr');
                 var th = document.createElement('th');
@@ -224,8 +214,12 @@ const seaBattleApplication = () => {
             }
         };
 
+        const mute = () => {
+            playSound.mute = gui.mute.checked;
+            console.log(playSound.mute);
+        };
+
         gameState = NOTREADY;
-        gui = new Gui();
         ownFleet = new GamerData(gui.ownField);
         rivalFleet = new GamerData(gui.rivalField);
         ownFleet.infoElement = gui.ownInfo;
@@ -234,6 +228,7 @@ const seaBattleApplication = () => {
         createTable(rivalFleet);
         createShips();
         document.onmousedown = shipShuffle;
+        gui.mute.onclick = mute;
         gui.colShipyard.hidden = false;
         gui.colRival.hidden = true;
         gui.colWait.hidden = true;
@@ -339,22 +334,24 @@ const seaBattleApplication = () => {
         rivalFleet.gamerName = userdata.username;
         startGame();
     });
-socket.on('register', userdata => {
-    if (gameState!=WAITING) { return; } //Some error happend
-    setGameState( userdata.firstmove ? CANMOVE : IDLE );
-    rivalFleet.ships = userdata.ships;
-    rivalFleet.gamerName = userdata.username;
-    startGame();
-});
+
+    socket.on('register', userdata => {
+        if (gameState!=WAITING) { return; } //Some error happend
+        setGameState( userdata.firstmove ? CANMOVE : IDLE );
+        rivalFleet.ships = userdata.ships;
+        rivalFleet.gamerName = userdata.username;
+        startGame();
+    });
 
     socket.on('move', (coordinates) => {
        [x, y] = coordinates;
         ownFleet.fire(x, y);
     });
-socket.on('move', coordinates => {
-   [x, y] = coordinates;
-    ownFleet.fire(x, y);
-});
+
+    socket.on('move', coordinates => {
+       [x, y] = coordinates;
+        ownFleet.fire(x, y);
+    });
 
     socket.on('link lost', () => {
         if (gameState!=IDLE && gameState!=CANMOVE) { return; } //It is some error.
