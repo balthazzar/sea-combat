@@ -1,6 +1,6 @@
-/* This file contains all the mouse event handlers in the
-   stage of ships' settings on the field
-* */
+/*  This file contains all the mouse event handlers of ships'
+    settings on the user own board
+*/
 function shipShuffle(e) {
 
     var ship = e.target;
@@ -52,10 +52,10 @@ function shipShuffle(e) {
         x = Math.round(x/CELL_SIZE - 1);
         y = Math.round(y/CELL_SIZE - 1);
         if (checkShipPosition(x, y)) {
-            disposeShip(x, y);
+            disposeShip(x, y); //ships.x0,y0 can be different from x,y after disposeShip
             // tie the element to the document, not to the viewport
-            x = (x + 1) * CELL_SIZE + 3;
-            y = (y + 1) * CELL_SIZE + 3;
+            x = (ship.x0 + 1) * CELL_SIZE + 3;
+            y = (ship.y0 + 1) * CELL_SIZE + 3;
             ship.style.position = 'absolute';
             ship.style.left = x + pageXOffset + box.left + 'px';
             ship.style.top  = y + pageYOffset + box.top + 'px';
@@ -105,7 +105,7 @@ function shipShuffle(e) {
     //Try to rotate the placed on the board ship
     function placedShipRotate() {
         var dx = ship.dx[ship.dx.length-1];
-        var dy = ship.dx[ship.dy.length-1];
+        var dy = ship.dy[ship.dy.length-1];
         var shipLen = Math.max(dx, dy);
         var x0 = ship.x0 - shipLen + dx;
         var y0 = ship.y0 - shipLen + dy;
